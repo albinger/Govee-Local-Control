@@ -1,0 +1,90 @@
+
+
+  <body touchstart="">
+    <div id="root"><div class="intro-cont-wrapper___3KOxF"><div><div class="intro-guide-wrapper___14gEs"><h3>Guide Navigation</h3><p class="intro-guide-text___27ood">This guide is divided into 3 main parts. Click the navigation to jump to the target part. </p><p class="intro-guide-item-p___1UzZI">1. Preparations for LAN API Control</p><p class="intro-guide-item-p___1UzZI">2. Supported Products</p><p class="intro-guide-item-p___1UzZI">3. How to use the LAN API</p></div><div class="intro-stage-wrapper___1uNfE"><div class="intro-stage-item___9rOuF"><h3 class="intro-stage-item-title___3MydH" id="guide_anchor_undefined_0">1. Preparations for LAN API Control</h3><p class="intro-stage-item-text___ituwk">Add the device to Govee Home App and make sure the Wi-Fi is connected. Turn on the LAN switch on Device Settings page.</p><p class="intro-stage-item-text___ituwk">Note: If your device is listed in the Supported Products but you can not see the LAN switch, please disconnect the device from the power supply and power on again. Wait for about 30 minutes and check if the LAN switch appears. If it still does not appear, please contact customer service.</p><div class="img-war___1xEh8"><img src="https://static-app-h5.govee.com/static/api_pic_kaifazhe_1.9b2d2575.png"/></div></div><div class="intro-stage-item___9rOuF"><h3 class="intro-stage-item-title___3MydH" id="guide_anchor_undefined_1">2. Supported Products</h3><p class="intro-stage-item-text___ituwk">Supported Product Models (continually updated)：H619Z、H6072、H619C、H7060、H619B、H6066、H619D、H619E、H61A1、H61A3、H61A2、H618A、H619A、H61A0、H6110、H6117、H6159、H6163、H6141、H6052、H6144、H615A、H6056、H6143、H6076、H6062、H6061、H6046、H6047、H6065、H6087、H610A、H610B、H6172、H61B2、H61E1、H7061、H7062、H7065、H6067、H6059、H6051、H6073、H615C、H615B、H618F、H7050、H61A5、H618C、H618E.</p></div><div class="intro-stage-item___9rOuF"><h3 class="intro-stage-item-title___3MydH" id="guide_anchor_undefined_2">3. How to use the LAN API</h3><p class="intro-stage-item-text___ituwk">Steps:</p><div class="intro-step-item___2fqyL"><h3>1. After turning on the LAN function, the Govee device will join the multicast address &quot;239.255.255.250&quot; and listen to the information from port number 4001 of the multicast.</h3><p>Client Scans Govee Devices</p><div class="img-war___1xEh8"><img src="https://d1f2504ijhdyjw.cloudfront.net/png/c5601edd54aa777cba304eb25ce12f97-1.png"/></div></div><div class="intro-step-item___2fqyL"><h3>2. The client needs to join the multicast address &quot;239.255.255.250&quot; and send the &quot;request scan&quot; message to the port 4001 listened to by the Govee device. The specific &quot;request scan&quot; message is as follows:</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;scan&quot;,
+    &quot;data&quot;:{
+      &quot;account_topic&quot;:&quot;reserve&quot;
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;request scan&quot;:</p><p>The &quot;scan&quot; in the cmd field represents a request to the device.
+Govee devices will analyse the field. The &quot;reserve&quot; must be filled in that field. Currently, the content in the field can only be &quot;reserve&quot;.</p></div><div class="intro-step-item___2fqyL"><h3>3. When the Govee device receives the &quot;request scan&quot; message, it will send the &quot;response scan&quot; back to the client via UDP packets. The client needs to create a UDP server and listen to port number 4002. The specific &quot;response scan&quot; is as follows:</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;scan&quot;,
+    &quot;data&quot;:{
+      &quot;ip&quot;:&quot;192.168.1.23&quot;,
+      &quot;device&quot;:&quot;1F:80:C5:32:32:36:72:4E&quot;,
+      &quot;sku&quot;:&quot;Hxxxx&quot;,
+      &quot;bleVersionHard&quot;:&quot;3.01.01&quot;,
+      &quot;bleVersionSoft&quot;:&quot;1.03.01&quot;,
+      &quot;wifiVersionHard&quot;:&quot;1.00.10&quot;,
+      &quot;wifiVersionSoft&quot;:&quot;1.02.03&quot;
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;response scan&quot;:</p><p>The &quot;scan&quot; in the cmd field represents the Govee device replies to the client.
+The &quot;192.168.1.23&quot; in the IP field represents the local IPV4 address of the Govee device, which is used to receive the UDP control command packets from the client.
+The &quot;1F:80:C5:32:32:36:72:4E&quot; in the device field represents the unique identity information of the device.
+The &quot;Hxxxx&quot; in the SKU field represents device models.
+The &quot;3.01.01&quot; in the bleVersionHard field represents the hardware version number of the Bluetooth on the Govee device.
+The &quot;1.03.01&quot; in the bleVersionSoft field represents the software version number of the Bluetooth on the Govee device.
+The &quot;1.00.10&quot; in the wifiVersionHard field represents the hardware version number of the Wi-Fi on the Govee device.
+The &quot;1.02.03&quot; in the wifiVersionSoft field represents the software version number of the Wi-Fi on the Govee device.</p></div></div><div class="intro-stage-item___9rOuF"><h3 class="intro-stage-item-title___3MydH" id="guide_anchor_undefined_3">Client Controls Govee Devices</h3><p class="intro-stage-item-text___ituwk">After the &quot;Client Scans Govee Devices&quot; gets the fixed IP address of the Govee devices, the client sends the &quot;control command&quot; via UDP to the fixed IP address of the Govee devices on port 4003. There are four main control commands, namely on/off, light brightness, device status query, and color/color temperature control. Among them, the device status query can get replies from the Govee devices. The specific &quot;control commands&quot; are as follows:</p><div class="img-war___1xEh8"><img src="https://d1f2504ijhdyjw.cloudfront.net/png/62422c9acddc2d8f802c5a264e712b1c-2.png"/></div><div class="intro-step-item___2fqyL"><h3>■ On/Off Control Command</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;turn&quot;,
+    &quot;data&quot;:{
+      &quot;value&quot;:0
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;On/Off&quot; control command:</p><p>The &quot;turn&quot; in the cmd field represents the on/off command.
+The &quot;0&quot; in the value field represents the specific implementation of the on/off operation. The value could only be &quot;0&quot; or &quot;1&quot;. &quot;0&quot; means &quot;off&quot;, &quot;1&quot; means &quot;on&quot;.</p></div><div class="intro-step-item___2fqyL"><h3>■ Light Brightness Command</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;brightness&quot;,
+    &quot;data&quot;:{
+      &quot;value&quot;:20
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;Light brightness&quot; command:</p><p>The &quot;brightness&quot; in the cmd field represents the brightness control command.
+The &quot;20&quot; in the value field represents the brightness is set at 20%. The value can only be an integer and is between 1 to 100.</p></div><div class="intro-step-item___2fqyL"><h3>■ Device Status Query Command</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;devStatus&quot;,
+    &quot;data&quot;:{
+      
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;Device Status Query&quot; command:</p><p>The &quot;devStatus&quot; in the cmd field represents a request for device status information.</p></div><div class="intro-step-item___2fqyL"><h3>Govee Device&#x27;s Reply to the Query Command</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;devStatus&quot;,
+    &quot;data&quot;:{
+      &quot;onOff&quot;:1,
+      &quot;brightness&quot;:100,
+      &quot;color&quot;:{
+        &quot;r&quot;:255,
+        &quot;g&quot;:0,
+        &quot;b&quot;:0
+      },
+      &quot;colorTemInKelvin&quot;:7200
+    }
+  }
+}</pre></div><p>The “devStatus” in the cmd field represents the Govee devices&#x27; response of the status information.
+The “1” in the onOff field represents the current state of the Govee device is “on”. “1” is “on” while “0” is “off”.
+The “100” in the brightness field represents the current brightness of the Govee device is 100%. The brightness range is 1 to 100.
+The values of “r”, “g”, and “b” in the color field represent the colors of red, green, and blue of the Govee device. The range is 0 to 255.
+The “7200” in the colorTemInKelvin field represents the current color temperature value of the Govee device is 7200K. The range is 2000 to 9000.</p></div><div class="intro-step-item___2fqyL"><h3>■ Color/Color Temperature Control</h3><div class="intro-step-item-code___RSB5l"><pre>{
+  &quot;msg&quot;:{
+    &quot;cmd&quot;:&quot;colorwc&quot;,
+    &quot;data&quot;:{
+      &quot;color&quot;:{
+        &quot;r&quot;:0,
+        &quot;g&quot;:12,
+        &quot;b&quot;:8
+      },
+      &quot;colorTemInKelvin&quot;:7200
+    }
+  }
+}</pre></div><p>Explanation of the JSON message &quot;Color/Color Temperature Control&quot;:</p><p>The “colorwc” in the cmd field represents the color or color temperature control.
+The “7200” in the colorTemInKelvin field represents the color temperature value is 7200K. The range is 2000-9000. When the value of the color temperature is not “0”, the device will convert the color temperature value into the color value of red, green and blue. When the value of the color temperature is “0”, the device will only resolve the value of “r”, “g” and “b” in the color field.</p></div></div></div><div class="ant-back-top back-top"></div></div></div></div>
+	
+  
+
+</body>
